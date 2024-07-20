@@ -1,0 +1,119 @@
+const express = require('express')
+const router = express.Router(); //diff. end point ka manage karta hai.
+
+const Person = require('./../models/Person'); //2 file picha hai
+
+router.post('/', async (req, res) => {
+
+    /*const data = req.body; //Assuming the request body contains the person data
+  
+    //Create a new Person document using the Mongoose model
+    const newPerson = new Person(data);
+    // newPerson.name = data.name;
+    // newPerson.age = data.age; Avoid this 
+  
+    //Save the new person to the database
+    newPerson.save( (error, savedPerson) => {
+      if(error){
+        console.log('Error saving person:', error);
+        res.status(500).json({error: 'Internal server error'});
+      }else{
+        console.log('data saved successfully');
+        res.status(200).json(savedPerson);
+      }
+    });*/
+  
+    try{
+  
+      const data = req.body; 
+      const newPerson = new Person(data);
+      const response = await newPerson.save();
+      console.log('data saved');
+      res.status(200).json(response);
+  
+    } catch(err) {
+  
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error'});
+  
+    }
+  
+  });
+
+router.get('/', async (req, res) => {
+    try{
+      const response = await Person.find();
+      console.log('data fetched');
+      res.status(200).json(response);
+    } catch(err){
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error'});
+    }
+  });
+
+  //Parameterized 
+router.get('/:workType', async (req, res) => { //:workType is a variable
+    try{
+  
+      const workType = req.params.workType; //Extract the work type the URL parameter
+      if(workType == 'chef' || workType == 'waiter' || workType == 'manager'){
+        const response = await Person.find({work: workType});
+        console.log('Response fetched');
+        res.status(200).json(response);
+      }else{
+        res.status(404).json({error: 'Invalid work type'});
+      }
+  
+    }catch(err){
+      console.log(err);
+      res.status(500).json({error: 'Internal Server Error'});
+    }
+  });
+
+  router.put('/:id', async (req, res) => {
+    try{
+
+      const personId = req.params.id; //Extract the is form the URL parameter
+      const updatedPersonData = req.body; //Updated data for the person
+
+      const response = await Person.findByIdAndUpdate(personId, updatedPersonData, {
+        new: true, //Return the updated documnet
+        runValidators: true //Run mongoose validation
+      });
+
+      if(!response){ //if id is not present
+        return res.status(404).json({ erroe: 'Person not found' });
+      }
+
+      console.log('data updated');
+      res.status(200).json(response);
+
+    }catch(err){
+      console.log(err);
+      res.status(500).json({error: 'Internal Server Error'});
+    }
+  });
+
+  router.delete('/:id', async (req, res) => {
+    try{
+      const personId = req.params.id;
+
+      //Assuming you have a Person model
+      const response = await Person.findByIdAndDelete(personId);
+
+      if(!response){
+        return res.status(404).json({ error: 'Person not found'});
+      }
+
+      console.log('data deleted');
+      res.status(200).json({ message : 'Person Deleted Successfully' });
+
+    }catch(err){
+      console.log(err);
+      res.status(500).json({error: 'Internal Server Error'});
+    }
+  });
+
+  module.exports = router;
+  
+  
