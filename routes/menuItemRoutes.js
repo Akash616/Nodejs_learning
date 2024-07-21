@@ -44,4 +44,48 @@ router.post('/', async (req, res) => {
     }
   });
 
+  router.put('/:id', async (req, res) => {
+    try {
+        const menuId = req.params.id; //Extract the is form the URL parameter
+        const updatedMenuItem = req.body; //Updated data for the menu
+
+        const response = await MenuItem.findByIdAndUpdate(menuId, updatedMenuItem, {
+          new: true, //Return the updated documnet
+          runValidators: true //Run mongoose validation
+        });
+
+        if(!response){ //if id is not present
+          return res.status(404).json({ erroe: 'Menu not found' });
+        }
+
+        console.log('data updated');
+        res.status(200).json(response);
+
+    } catch (error) {
+        console.log(err);
+        res.status(500).json({ error: 'Internal Server Error'});
+    }
+  });
+
+  router.delete('/:id', async (req, res) => {
+    try{
+      const menuId = req.params.id;
+
+      //Assuming you have a MenuItem model
+      const response = await MenuItem.findByIdAndDelete(menuId);
+
+      if(!response){
+        return res.status(404).json({ error: 'Menu not found'});
+      }
+
+      console.log('data deleted');
+      res.status(200).json({ message : 'Menu Deleted Successfully' });
+
+    }catch(err){
+      console.log(err);
+      res.status(500).json({error: 'Internal Server Error'});
+    }
+  });
+
+
   module.exports = router;
