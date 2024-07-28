@@ -105,7 +105,7 @@ router.get('/:workType', async (req, res) => { //:workType is a variable
   router.put('/:id', async (req, res) => {
     try{
 
-      const personId = req.params.id; //Extract the is form the URL parameter
+      const personId = req.params.id; //Extract the id form the URL parameter
       const updatedPersonData = req.body; //Updated data for the person
 
       const response = await Person.findByIdAndUpdate(personId, updatedPersonData, {
